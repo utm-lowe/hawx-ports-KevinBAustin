@@ -157,6 +157,16 @@ port_init(void)
     // non-kernal ports. Make sure that all ports are empty.
 
     // YOUR CODE HERE
+
+    for(int i=0; i < NPORT-1; i++){
+        ports[i].type = PORT_TYPE_FREE;
+        ports[i].head = 0;
+        ports[i].tail = 0;
+    }
+
+    ports[PORT_CONSOLEIN].type = PORT_TYPE_KERNEL;
+    ports[PORT_CONSOLEOUT].type = PORT_TYPE_KERNEL;
+    ports[PORT_DISKCMD].type = PORT_TYPE_KERNEL;
 }
 
 
@@ -168,6 +178,11 @@ port_close(int port)
     // if it is open, we empty its contents and mark it as free.
 
     // YOUR CODE HERE
+    ports[port].count = 0;
+    for(int i=0; i < PORT_BUF_SIZE-1; i++){
+        ports[port].buffer[i]=0;
+    }
+    ports[port].type = PORT_TYPE_FREE;
 }
 
 
@@ -185,6 +200,21 @@ port_acquire(int port, procid_t proc_id)
     // If this operation fails, return -1.
 
     // YOUR CODE HERE
+    if(port == -1){
+        for(int i=0; i < NPORT-1; i++){
+            if(ports[i].type == PORT_TYPE_FREE){
+                ports[i].type = PORT_TYPE_KERNEL;
+                ports[i].owner = proc_id;
+                return i;
+            }
+        }
+    }
+
+    if(ports[port].type = PORT_TYPE_FREE){
+        ports[port].type = PORT_TYPE_KERNEL;
+        ports[port].owner = proc_id;
+        return port;
+    }
     
     return -1;
 }
@@ -201,6 +231,21 @@ port_write(int port, char *buf, int n)
     // write it.
 
     // YOUR CODE HERE
+    int write_size;
+    
+    if(n >= PORT_BUF_SIZE)
+        write_size = PORT_BUF_SIZE;
+    else
+        write_size = n;
+
+    if(ports[port].type = PORT_TYPE_FREE){
+        for(int i =0; i < write_size-1; i++){
+            ports[port].buffer[i] = buf;
+            ports[port].count ++;
+        }
+        return ports[port].count;
+    }
+    
     return -1;
 }
 
@@ -216,6 +261,20 @@ port_read(int port, char *buf, int n)
     // Be sure to update count as you read.
 
     // YOUR CODE HERE
+    int read_size;
+    int read_count = 0;
+    
+    if(n >= ports[port].count)
+        read_size = ports[port].count;
+    else
+        read_size = n;
 
+    if(ports[port].type = PORT_TYPE_FREE){
+        for(int i = 0; i < read_size-1; i++){
+            buf = ports[port].buffer[i];
+            read_count ++;
+        }
+        return read_count;
+    }
     return -1;
 }
