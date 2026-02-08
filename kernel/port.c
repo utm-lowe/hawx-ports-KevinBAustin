@@ -160,6 +160,7 @@ port_init(void)
 
     for(int i=0; i < NPORT-1; i++){
         ports[i].type = PORT_TYPE_FREE;
+        ports[i].free = PORT_TYPE_FREE;
         ports[i].head = 0;
         ports[i].tail = 0;
     }
@@ -167,6 +168,9 @@ port_init(void)
     ports[PORT_CONSOLEIN].type = PORT_TYPE_KERNEL;
     ports[PORT_CONSOLEOUT].type = PORT_TYPE_KERNEL;
     ports[PORT_DISKCMD].type = PORT_TYPE_KERNEL;
+    ports[PORT_CONSOLEIN].free = PORT_TYPE_KERNEL;
+    ports[PORT_CONSOLEOUT].free = PORT_TYPE_KERNEL;
+    ports[PORT_DISKCMD].free = PORT_TYPE_KERNEL;
 }
 
 
@@ -183,6 +187,7 @@ port_close(int port)
         ports[port].buffer[i]=0;
     }
     ports[port].type = PORT_TYPE_FREE;
+    ports[port].free = PORT_TYPE_FREE;
 }
 
 
@@ -238,7 +243,7 @@ port_write(int port, char *buf, int n)
     else
         write_size = n;
 
-    if(ports[port].type = PORT_TYPE_FREE){
+    if(ports[port].free = PORT_TYPE_KERNEL){
         for(int i =0; i < write_size-1; i++){
             ports[port].buffer[i] = buf;
             ports[port].count ++;
@@ -269,7 +274,7 @@ port_read(int port, char *buf, int n)
     else
         read_size = n;
 
-    if(ports[port].type = PORT_TYPE_FREE){
+    if(ports[port].free = PORT_TYPE_KERNEL){
         for(int i = 0; i < read_size-1; i++){
             buf = ports[port].buffer[i];
             read_count ++;
